@@ -48,36 +48,36 @@ if(isset($_GET['id']))
 }
 ?>
 
-<h2>Edit Alumni</h2>
+<section class="page-hero">
+       <h1 class="display-6 mb-2">Edit Alumni</h1>
+       <p>Update the core profile fields for this alumnus.</p>
+</section>
 
-<form method="post">
-
-<input type="hidden"
-       name="alumni_id"
-       value="<?php echo $row['ALUMNI_ID']; ?>">
-
-First Name:<br>
-<input type="text"
-       name="first_name"
-       value="<?php echo $row['FIRST_NAME']; ?>">
-<br><br>
-
-Last Name:<br>
-<input type="text"
-       name="last_name"
-       value="<?php echo $row['LAST_NAME']; ?>">
-<br><br>
-
-City:<br>
-<input type="text"
-       name="city"
-       value="<?php echo $row['CITY']; ?>">
-<br><br>
-
-<input type="submit"
-       name="update"
-       value="Update">
-
-</form>
+<div class="section-card">
+       <div class="section-card-header">Alumni Profile</div>
+       <div class="section-card-body">
+              <form method="post">
+                     <input type="hidden" name="alumni_id" value="<?php echo $row['ALUMNI_ID']; ?>">
+                     <div class="row g-3">
+                            <div class="col-md-6">
+                                   <label>First Name</label>
+                                   <input type="text" name="first_name" value="<?php echo $row['FIRST_NAME']; ?>">
+                            </div>
+                            <div class="col-md-6">
+                                   <label>Last Name</label>
+                                   <input type="text" name="last_name" value="<?php echo $row['LAST_NAME']; ?>">
+                            </div>
+                            <div class="col-12">
+                                   <label>City</label>
+                                   <input type="text" name="city" value="<?php echo $row['CITY']; ?>">
+                            </div>
+                     </div>
+                     <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+                            <a href="list.php" class="btn btn-outline-secondary">Back to List</a>
+                            <input type="submit" name="update" class="btn-add" value="Update Alumni">
+                     </div>
+              </form>
+       </div>
+</div>
 
 <?php include("../includes/footer.php"); ?>

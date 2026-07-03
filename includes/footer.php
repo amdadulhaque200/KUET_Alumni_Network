@@ -1,10 +1,10 @@
-</div>
-
-<footer class="bg-dark text-white text-center mt-5 p-3">
-    KUET Alumni Network & Donation Tracking System
-</footer>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
+    </main>
+    <footer class="site-footer">
+        <div class="container d-flex flex-column flex-md-row justify-content-between align-items-center gap-2">
+            <span>KUET Alumni Network & Donation Tracking System</span>
+            <span>Built for alumni, events, donations, and reporting</span>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

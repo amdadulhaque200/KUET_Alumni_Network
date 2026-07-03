@@ -3,6 +3,10 @@
 include '../config/db.php';
 include '../includes/header.php';
 
+/* Search */
+
+$search = "";
+
 $sql = "
 SELECT
     alumni_id,
@@ -10,130 +14,131 @@ SELECT
     last_name,
     email,
     city
-FROM ALUMNI_ADMIN.ALUMNI
-ORDER BY alumni_id
+FROM Alumni
 ";
 
-$stid = oci_parse($conn, $sql);
+if(isset($_GET['search']) && $_GET['search']!="")
+{
+    $search = strtoupper(trim($_GET['search']));
+
+    $sql .= "
+    WHERE
+        UPPER(first_name) LIKE :search
+        OR UPPER(last_name) LIKE :search
+        OR TO_CHAR(alumni_id) LIKE :search2
+    ";
+}
+
+$sql .= " ORDER BY alumni_id";
+
+$stid = oci_parse($conn,$sql);
+
+if($search!="")
+{
+    $like="%".$search."%";
+
+    oci_bind_by_name($stid,":search",$like);
+    oci_bind_by_name($stid,":search2",$like);
+}
+
 oci_execute($stid);
 
 ?>
 
-<div class="d-flex justify-content-between align-items-center mb-4">
+<div class="page-header">
 
-    <h2 class="mb-0">👨‍🎓 Alumni List</h2>
+    <h2>🎓 Alumni Management</h2>
 
-    <a href="add.php" class="btn btn-success">
-        + Add Alumni
-    </a>
+    <div class="top-buttons">
+
+        <form method="GET" style="display:flex; gap:10px;">
+
+            <input
+                type="text"
+                name="search"
+                placeholder="Search by Name or Roll..."
+                value="<?php echo $search; ?>"
+            >
+
+            <button type="submit" class="btn-search">
+                Search
+            </button>
+
+        </form>
+
+        <a class="btn-add" href="add.php">
+            + Add Alumni
+        </a>
+
+    </div>
 
 </div>
 
-<div class="card shadow">
+<div class="card">
 
-    <div class="card-header bg-primary text-white">
+<div class="card-title">
+Registered Alumni
+</div>
 
-        <h5 class="mb-0">
-            Registered Alumni
-        </h5>
+<table>
 
-    </div>
+<tr>
 
-    <div class="card-body">
+<th>ID</th>
 
-        <div class="table-responsive">
+<th>Name</th>
 
-            <table class="table table-striped table-hover align-middle">
+<th>Email</th>
 
-                <thead class="table-dark">
+<th>City</th>
 
-                    <tr>
+<th>Action</th>
 
-                        <th>ID</th>
+</tr>
 
-                        <th>Name</th>
+<?php while($row=oci_fetch_assoc($stid)){ ?>
 
-                        <th>Email</th>
+<tr>
 
-                        <th>City</th>
+<td><?= $row['ALUMNI_ID'] ?></td>
 
-                        <th width="180">
-                            Action
-                        </th>
+<td>
+<?= $row['FIRST_NAME']." ".$row['LAST_NAME'] ?>
+</td>
 
-                    </tr>
+<td><?= $row['EMAIL'] ?></td>
 
-                </thead>
+<td><?= $row['CITY'] ?></td>
 
-                <tbody>
+<td>
 
-                <?php while($row = oci_fetch_assoc($stid)) { ?>
+<a class="btn-edit"
+href="edit.php?id=<?=$row['ALUMNI_ID']?>">
 
-                    <tr>
+✏ Edit
 
-                        <td>
-                            <?= $row['ALUMNI_ID']; ?>
-                        </td>
+</a>
 
-                        <td>
+<a class="btn-delete"
+href="delete.php?id=<?=$row['ALUMNI_ID']?>"
+onclick="return confirm('Delete this Alumni?')">
 
-                            <strong>
+🗑 Delete
 
-                                <?= $row['FIRST_NAME']; ?>
+</a>
 
-                                <?= $row['LAST_NAME']; ?>
+</td>
 
-                            </strong>
+</tr>
 
-                        </td>
+<?php } ?>
 
-                        <td>
-
-                            <?= $row['EMAIL']; ?>
-
-                        </td>
-
-                        <td>
-
-                            <?= $row['CITY']; ?>
-
-                        </td>
-
-                        <td>
-
-                            <a
-                                href="edit.php?id=<?= $row['ALUMNI_ID']; ?>"
-                                class="btn btn-warning btn-sm">
-
-                                ✏ Edit
-
-                            </a>
-
-                            <a
-                                href="delete.php?id=<?= $row['ALUMNI_ID']; ?>"
-                                class="btn btn-danger btn-sm"
-                                onclick="return confirm('Are you sure you want to delete this alumni?');">
-
-                                🗑 Delete
-
-                            </a>
-
-                        </td>
-
-                    </tr>
-
-                <?php } ?>
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </div>
+</table>
 
 </div>
 
 <?php
+
 include '../includes/footer.php';
+
 ?>

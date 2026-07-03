@@ -1,52 +1,41 @@
 <!DOCTYPE html>
-
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>KUET Alumni Network</title>
-
-```
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-```
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/kuet_alumni/assets/style.css">
 </head>
-
-<body class="bg-light">
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow">
+<body class="app-shell">
+<nav class="navbar navbar-expand-lg navbar-dark site-nav">
     <div class="container">
-
-```
-    <a class="navbar-brand fw-bold" href="/kuet_alumni/dashboard.php">
-        KUET Alumni
-    </a>
-
-    <div class="navbar-nav">
-
-        <a class="nav-link" href="/kuet_alumni/dashboard.php">Dashboard</a>
-
-        <a class="nav-link" href="/kuet_alumni/alumni/list.php">Alumni</a>
-
-        <a class="nav-link" href="/kuet_alumni/alumni/add.php">Add Alumni</a>
-
-        <a class="nav-link" href="/kuet_alumni/alumni/search.php">Search</a>
-
-        <a class="nav-link" href="/kuet_alumni/donation/list.php">Donations</a>
-
-        <a class="nav-link" href="/kuet_alumni/donation/add.php">Add Donation</a>
-
-        <a class="nav-link" href="/kuet_alumni/event/list.php">Events</a>
-
-        <a class="nav-link" href="/kuet_alumni/event/add.php">Add Event</a>
-
-        <a class="nav-link" href="/kuet_alumni/reports/top_donors.php">Reports</a>
-
+        <a class="navbar-brand fw-bold brand-mark" href="/kuet_alumni/dashboard.php">
+            KUET Alumni Network
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="mainNav">
+            <div class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+                <a class="nav-link" href="/kuet_alumni/dashboard.php">Dashboard</a>
+                <a class="nav-link" href="/kuet_alumni/alumni/list.php">Alumni</a>
+                <a class="nav-link" href="/kuet_alumni/donation/list.php">Donations</a>
+                <a class="nav-link" href="/kuet_alumni/event/list.php">Events</a>
+                <div class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="reportsNav" role="button" data-bs-toggle="dropdown" aria-expanded="false">Reports</a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><a class="dropdown-item" href="/kuet_alumni/reports/top_donors.php">Top Donors</a></li>
+                        <li><a class="dropdown-item" href="/kuet_alumni/reports/department_donation.php">Department Donation</a></li>
+                        <li><a class="dropdown-item" href="/kuet_alumni/reports/active_campaigns.php">Active Campaigns</a></li>
+                    </ul>
+                </div>
+                <a class="nav-link nav-cta" href="/kuet_alumni/login.php">Login</a>
+            </div>
+        </div>
     </div>
-</div>
-```
-
 </nav>
-
-<div class="container mt-4">
+<main class="page-shell container-lg">

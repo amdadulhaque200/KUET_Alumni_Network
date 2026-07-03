@@ -36,47 +36,51 @@ if(isset($_GET['keyword']))
 }
 ?>
 
-<h2>Search Alumni</h2>
+<section class="page-hero">
+    <h1 class="display-6 mb-2">Search Alumni</h1>
+    <p>Find alumni by name, email, or city using a cleaner search flow.</p>
+</section>
 
-<form method="get">
-
-<input
-type="text"
-name="keyword"
-placeholder="Name, Email or City">
-
-<input
-type="submit"
-value="Search">
-
-</form>
-
-<br>
+<div class="section-card mb-4">
+    <div class="section-card-header">Search Filters</div>
+    <div class="section-card-body">
+        <form method="get" class="search-form">
+            <input type="text" name="keyword" placeholder="Name, Email or City" value="<?php echo htmlspecialchars(isset($_GET['keyword']) ? $_GET['keyword'] : ''); ?>">
+            <button type="submit" class="btn-search">Search</button>
+            <a href="search.php" class="btn-secondary">Reset</a>
+        </form>
+    </div>
+</div>
 
 <?php if($result) { ?>
-
-<table>
-
-<tr>
-    <th>ID</th>
-    <th>Name</th>
-    <th>Email</th>
-    <th>City</th>
-</tr>
-
-<?php while($row = oci_fetch_assoc($result)) { ?>
-
-<tr>
-    <td><?= $row['ALUMNI_ID'] ?></td>
-    <td><?= $row['FIRST_NAME'].' '.$row['LAST_NAME'] ?></td>
-    <td><?= $row['EMAIL'] ?></td>
-    <td><?= $row['CITY'] ?></td>
-</tr>
-
-<?php } ?>
-
-</table>
-
+<div class="section-card">
+    <div class="section-card-header">Search Results</div>
+    <div class="table-wrap">
+        <table>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>City</th>
+            </tr>
+            <?php while($row = oci_fetch_assoc($result)) { ?>
+            <tr>
+                <td><?= $row['ALUMNI_ID'] ?></td>
+                <td><?= $row['FIRST_NAME'].' '.$row['LAST_NAME'] ?></td>
+                <td><?= $row['EMAIL'] ?></td>
+                <td><?= $row['CITY'] ?></td>
+            </tr>
+            <?php } ?>
+        </table>
+    </div>
+</div>
+<?php } else { ?>
+<div class="section-card">
+    <div class="section-card-body text-center py-5">
+        <h4 class="fw-bold mb-2">No search performed yet</h4>
+        <p class="table-note mb-0">Enter a name, email, or city to browse the alumni directory.</p>
+    </div>
+</div>
 <?php } ?>
 
 <?php

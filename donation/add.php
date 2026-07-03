@@ -33,53 +33,62 @@ if(isset($_POST['submit']))
 
     if(oci_execute($stid))
     {
-        echo "<h3 style='color:green'>Donation Added Successfully!</h3>";
+        echo "<div class='success'>Donation Added Successfully.</div>";
     }
     else
     {
         $e = oci_error($stid);
-        echo "<pre>";
-        print_r($e);
-        echo "</pre>";
+        echo "<div class='error'>".$e['message']."</div>";
     }
 }
 ?>
 
-<h2>Add Donation</h2>
+<section class="page-hero">
+    <h1 class="display-6 mb-2">Add New Donation</h1>
+    <p>Record a donation entry tied to an alumni and campaign.</p>
+</section>
 
-<form method="post">
+<div class="section-card">
+    <div class="section-card-header">Donation Information</div>
+    <div class="section-card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Donation ID</label>
+                    <input type="number" name="donation_id" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Alumni ID</label>
+                    <input type="number" name="alumni_id" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Campaign ID</label>
+                    <input type="number" name="campaign_id" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Amount</label>
+                    <input type="number" name="amount" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Donation Date</label>
+                    <input type="date" name="donation_date" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Payment Method</label>
+                    <select name="payment_method">
+                        <option value="Bkash">Bkash</option>
+                        <option value="Card">Card</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cash">Cash</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+                <a href="list.php" class="btn btn-outline-secondary">Back to List</a>
+                <input class="btn-add" type="submit" name="submit" value="Add Donation">
+            </div>
+        </form>
+    </div>
+</div>
 
-Donation ID:<br>
-<input type="number" name="donation_id" required>
-<br><br>
-
-Alumni ID:<br>
-<input type="number" name="alumni_id" required>
-<br><br>
-
-Campaign ID:<br>
-<input type="number" name="campaign_id" required>
-<br><br>
-
-Amount:<br>
-<input type="number" name="amount" required>
-<br><br>
-
-Payment Method:<br>
-
-<select name="payment_method">
-    <option value="Bkash">Bkash</option>
-    <option value="Card">Card</option>
-    <option value="Bank Transfer">Bank Transfer</option>
-    <option value="Cash">Cash</option>
-</select>
-
-<br><br>
-
-<input type="submit" name="submit" value="Add Donation">
-
-</form>
-
-<?php
-include '../includes/footer.php';
-?>
+<?php include '../includes/footer.php'; ?>

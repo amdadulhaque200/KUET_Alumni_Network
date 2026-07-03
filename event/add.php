@@ -33,14 +33,14 @@ VALUES
     $stid = oci_parse($conn, $sql);
 
     oci_bind_by_name($stid, ":event_id", $id);
-oci_bind_by_name($stid, ":event_name", $name);
-oci_bind_by_name($stid, ":event_date", $date);
-oci_bind_by_name($stid, ":venue", $venue);
-oci_bind_by_name($stid, ":event_type", $type);
+    oci_bind_by_name($stid, ":event_name", $name);
+    oci_bind_by_name($stid, ":event_date", $date);
+    oci_bind_by_name($stid, ":venue", $venue);
+    oci_bind_by_name($stid, ":event_type", $type);
 
     if(oci_execute($stid))
     {
-        echo "<h3 style='color:green'>Event Added Successfully!</h3>";
+        echo "<h3 class='success'>Event Added Successfully!</h3>";
     }
     else
     {
@@ -52,41 +52,48 @@ oci_bind_by_name($stid, ":event_type", $type);
 }
 ?>
 
-<h2>Add Event</h2>
+<section class="page-hero">
+    <h1 class="display-6 mb-2">Add Event</h1>
+    <p>Create a new alumni event entry with venue and category.</p>
+</section>
 
-<form method="post">
+<div class="section-card">
+    <div class="section-card-header">Event Details</div>
+    <div class="section-card-body">
+        <form method="post">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label>Event ID</label>
+                    <input type="number" name="event_id" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Event Name</label>
+                    <input type="text" name="event_name" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Event Date</label>
+                    <input type="date" name="event_date" required>
+                </div>
+                <div class="col-md-6">
+                    <label>Venue</label>
+                    <input type="text" name="venue">
+                </div>
+                <div class="col-md-6">
+                    <label>Event Type</label>
+                    <select name="event_type">
+                        <option value="Reunion">Reunion</option>
+                        <option value="Job Fair">Job Fair</option>
+                        <option value="Webinar">Webinar</option>
+                        <option value="Fundraiser">Fundraiser</option>
+                    </select>
+                </div>
+            </div>
+            <div class="d-flex justify-content-between align-items-center mt-4 flex-wrap gap-2">
+                <a href="list.php" class="btn btn-outline-secondary">Back to List</a>
+                <input class="btn-add" type="submit" name="submit" value="Add Event">
+            </div>
+        </form>
+    </div>
+</div>
 
-Event ID:<br>
-<input type="number" name="event_id" required>
-<br><br>
-
-Event Name:<br>
-<input type="text" name="event_name" required>
-<br><br>
-
-Event Date:<br>
-<input type="date" name="event_date" required>
-<br><br>
-
-Venue:<br>
-<input type="text" name="venue">
-<br><br>
-
-Event Type:<br>
-
-<select name="event_type">
-    <option value="Reunion">Reunion</option>
-    <option value="Job Fair">Job Fair</option>
-    <option value="Webinar">Webinar</option>
-    <option value="Fundraiser">Fundraiser</option>
-</select>
-
-<br><br>
-
-<input type="submit" name="submit" value="Add Event">
-
-</form>
-
-<?php
-include '../includes/footer.php';
-?>
+<?php include '../includes/footer.php'; ?>
