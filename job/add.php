@@ -1,4 +1,3 @@
-
 <?php
 include("../includes/auth.php");
 include("../config/db.php");
@@ -69,15 +68,20 @@ if (isset($_POST['submit'])) {
 
 $alumni_sql = "
 SELECT
-    ALUMNI_ID,
-    FIRST_NAME,
-    LAST_NAME
-FROM ALUMNI
-ORDER BY FIRST_NAME
+    a.ALUMNI_ID,
+    a.FIRST_NAME,
+    a.LAST_NAME,
+    d.DEPT_NAME,
+    b.BATCH_YEAR
+FROM ALUMNI a
+JOIN DEPARTMENT d
+ON a.DEPT_ID = d.DEPT_ID
+JOIN BATCH b
+ON a.BATCH_ID = b.BATCH_ID
+ORDER BY a.ALUMNI_ID
 ";
 
 $alumni_stid = oci_parse($conn, $alumni_sql);
-
 oci_execute($alumni_stid);
 
 ?>
@@ -128,36 +132,33 @@ oci_execute($alumni_stid);
 
                 <div class="col-md-6">
 
-                    <label>Posted By</label>
+                    <label class="form-label">
+                        Posted By
+                    </label>
 
                     <select
                         name="posted_by"
-                        class="form-control"
+                        class="form-select searchable"
                         required>
 
-                        <option value="">Select Alumni</option>
+                        <option></option>
 
-                        <?php
-
-                        while ($a = oci_fetch_assoc($alumni_stid)) {
-
-                        ?>
+                        <?php while ($a = oci_fetch_assoc($alumni_stid)) { ?>
 
                             <option value="<?= $a['ALUMNI_ID']; ?>">
 
                                 <?= $a['ALUMNI_ID']; ?>
-
-                                -
-
-                                <?= $a['FIRST_NAME'] . " " . $a['LAST_NAME']; ?>
+                                |
+                                <?= $a['FIRST_NAME']; ?>
+                                <?= $a['LAST_NAME']; ?>
+                                |
+                                <?= $a['DEPT_NAME']; ?>
+                                |
+                                Batch <?= $a['BATCH_YEAR']; ?>
 
                             </option>
 
-                        <?php
-
-                        }
-
-                        ?>
+                        <?php } ?>
 
                     </select>
 
@@ -239,6 +240,19 @@ oci_execute($alumni_stid);
     </div>
 
 </div>
+<script>
+    $(document).ready(function() {
+
+        $('.searchable').select2({
+
+            placeholder: "Search Alumni...",
+            allowClear: true,
+            width: '100%'
+
+        });
+
+    });
+</script>
 
 <?php
 

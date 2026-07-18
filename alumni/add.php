@@ -118,7 +118,6 @@ Failed to add alumni.
                         type="number"
                         name="alumni_id"
                         class="form-control"
-                        placeholder="Example: 1907059"
                         required>
 
                 </div>
@@ -133,7 +132,6 @@ Failed to add alumni.
                         type="email"
                         name="email"
                         class="form-control"
-                        placeholder="example@gmail.com"
                         required>
 
                 </div>
@@ -175,8 +173,7 @@ Failed to add alumni.
                     <input
                         type="text"
                         name="phone"
-                        class="form-control"
-                        placeholder="01XXXXXXXXX">
+                        class="form-control">
 
                 </div>
 
@@ -277,8 +274,7 @@ ORDER BY batch_year DESC
                     <input
                         type="text"
                         name="job"
-                        class="form-control"
-                        placeholder="Software Engineer">
+                        class="form-control">
 
                 </div>
 
@@ -291,8 +287,7 @@ ORDER BY batch_year DESC
                     <input
                         type="text"
                         name="company"
-                        class="form-control"
-                        placeholder="Brain Station 23">
+                        class="form-control">
 
                 </div>
                 <div class="col-md-6 mb-3">
@@ -349,8 +344,7 @@ ORDER BY batch_year DESC
                     <input
                         type="url"
                         name="linkedin_url"
-                        class="form-control"
-                        placeholder="https://linkedin.com/in/username">
+                        class="form-control">
 
                 </div>
 
@@ -363,8 +357,7 @@ ORDER BY batch_year DESC
                     <input
                         type="text"
                         name="city"
-                        class="form-control"
-                        placeholder="Dhaka">
+                        class="form-control">
 
                 </div>
 

@@ -129,6 +129,8 @@ FROM V_ACTIVE_CAMPAIGNS
 $stid9 = oci_parse($conn, $sql9);
 oci_execute($stid9);
 
+
+
 ?>
 
 <section class="page-hero">

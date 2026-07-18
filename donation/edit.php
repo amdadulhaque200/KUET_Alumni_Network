@@ -1,74 +1,93 @@
 <?php
 include("../includes/auth.php");
-include '../config/db.php';
-include '../includes/header.php';
+include("../config/db.php");
+include("../includes/header.php");
 
 $message = "";
 
+$id = $_GET['id'];
+
 /* ===========================
-   NEXT DONATION ID
+   LOAD DONATION
 =========================== */
 
-$sql = "SELECT NVL(MAX(DONATION_ID),1000)+1 NEXT_ID FROM DONATION";
+$sql = "
+SELECT
+DONATION_ID,
+ALUMNI_ID,
+CAMPAIGN_ID,
+AMOUNT,
+PAYMENT_METHOD
+FROM DONATION
+WHERE DONATION_ID=:id
+";
+
 $stid = oci_parse($conn, $sql);
+oci_bind_by_name($stid, ":id", $id);
 oci_execute($stid);
+
 $row = oci_fetch_assoc($stid);
 
-$nextID = $row['NEXT_ID'];
+if (!$row) {
+    echo "<div class='alert alert-danger'>
+            Donation not found.
+          </div>";
+
+    include("../includes/footer.php");
+    exit;
+}
 
 /* ===========================
-   INSERT DONATION
+   UPDATE DONATION
 =========================== */
 
-if (isset($_POST['save'])) {
-    $id         = $_POST['donation_id'];
+if (isset($_POST['update'])) {
+
     $alumni     = $_POST['alumni_id'];
     $campaign   = $_POST['campaign_id'];
     $amount     = $_POST['amount'];
     $payment    = $_POST['payment_method'];
 
     $sql = "
-    INSERT INTO DONATION
-    (
-        DONATION_ID,
-        ALUMNI_ID,
-        CAMPAIGN_ID,
-        AMOUNT,
-        DONATION_DATE,
-        PAYMENT_METHOD
-    )
-    VALUES
-    (
-        :id,
-        :alumni,
-        :campaign,
-        :amount,
-        SYSDATE,
-        :payment
-    )";
+
+    UPDATE DONATION
+
+    SET
+
+        ALUMNI_ID=:alumni,
+        CAMPAIGN_ID=:campaign,
+        AMOUNT=:amount,
+        PAYMENT_METHOD=:payment
+
+    WHERE DONATION_ID=:id
+
+    ";
 
     $stid = oci_parse($conn, $sql);
 
-    oci_bind_by_name($stid, ":id", $id);
     oci_bind_by_name($stid, ":alumni", $alumni);
     oci_bind_by_name($stid, ":campaign", $campaign);
     oci_bind_by_name($stid, ":amount", $amount);
     oci_bind_by_name($stid, ":payment", $payment);
+    oci_bind_by_name($stid, ":id", $id);
 
     if (oci_execute($stid)) {
-        $message = "
-        <div class='alert alert-success'>
-            Donation added successfully.
-        </div>";
 
-        $nextID++;
+        echo "<div class='alert alert-success'>
+                Donation updated successfully.
+              </div>";
+
+        $row['ALUMNI_ID'] = $alumni;
+        $row['CAMPAIGN_ID'] = $campaign;
+        $row['AMOUNT'] = $amount;
+        $row['PAYMENT_METHOD'] = $payment;
     } else {
+
         $e = oci_error($stid);
 
-        $message = "
-        <div class='alert alert-danger'>
-            " . $e['message'] . "
-        </div>";
+        echo "<div class='alert alert-danger'>
+                " . $e['message'] . "
+              </div>";
     }
 }
 
@@ -77,18 +96,25 @@ if (isset($_POST['save'])) {
 =========================== */
 
 $alumni_sql = "
+
 SELECT
+
 a.ALUMNI_ID,
 a.FIRST_NAME,
 a.LAST_NAME,
 d.DEPT_NAME,
 b.BATCH_YEAR
+
 FROM ALUMNI a
+
 JOIN DEPARTMENT d
 ON a.DEPT_ID=d.DEPT_ID
+
 JOIN BATCH b
 ON a.BATCH_ID=b.BATCH_ID
+
 ORDER BY a.ALUMNI_ID
+
 ";
 
 $alumni_stid = oci_parse($conn, $alumni_sql);
@@ -99,11 +125,16 @@ oci_execute($alumni_stid);
 =========================== */
 
 $campaign_sql = "
+
 SELECT
+
 CAMPAIGN_ID,
 TITLE
+
 FROM DONATION_CAMPAIGN
+
 ORDER BY TITLE
+
 ";
 
 $campaign_stid = oci_parse($conn, $campaign_sql);
@@ -115,13 +146,13 @@ oci_execute($campaign_stid);
 
     <h1 class="display-6 mb-2">
 
-        Add New Donation
+        Edit Donation
 
     </h1>
 
     <p>
 
-        Record a donation made by a KUET alumni.
+        Update donation information.
 
     </p>
 
@@ -137,13 +168,9 @@ oci_execute($campaign_stid);
 
     <div class="section-card-body">
 
-        <?= $message; ?>
-
         <form method="post">
 
             <div class="row g-3">
-
-                <!-- Donation ID -->
 
                 <div class="col-md-6">
 
@@ -155,42 +182,45 @@ oci_execute($campaign_stid);
 
                     <input
                         type="text"
-                        name="donation_id"
                         class="form-control"
-                        value="<?= $nextID; ?>"
+                        value="<?= $row['DONATION_ID']; ?>"
                         readonly>
 
                 </div>
-
-                <!-- Alumni -->
 
                 <div class="col-md-6">
 
                     <label class="form-label">
 
-                        Select Alumni
+                        Alumni
 
                     </label>
 
                     <select
-
                         name="alumni_id"
                         class="form-select searchable"
                         required>
 
-                        <option></option>
-
                         <?php while ($a = oci_fetch_assoc($alumni_stid)) { ?>
 
-                            <option value="<?= $a['ALUMNI_ID']; ?>">
+                            <option
+                                value="<?= $a['ALUMNI_ID']; ?>"
+                                <?= ($a['ALUMNI_ID'] == $row['ALUMNI_ID']) ? 'selected' : ''; ?>>
 
                                 <?= $a['ALUMNI_ID']; ?>
+
                                 |
+
                                 <?= $a['FIRST_NAME']; ?>
+
                                 <?= $a['LAST_NAME']; ?>
+
                                 |
+
                                 <?= $a['DEPT_NAME']; ?>
+
                                 |
+
                                 Batch <?= $a['BATCH_YEAR']; ?>
 
                             </option>
@@ -201,13 +231,11 @@ oci_execute($campaign_stid);
 
                 </div>
 
-                <!-- Campaign -->
-
                 <div class="col-md-6">
 
                     <label class="form-label">
 
-                        Donation Campaign
+                        Campaign
 
                     </label>
 
@@ -216,10 +244,11 @@ oci_execute($campaign_stid);
                         class="form-select searchable"
                         required>
 
-                        <option></option>
                         <?php while ($c = oci_fetch_assoc($campaign_stid)) { ?>
 
-                            <option value="<?= $c['CAMPAIGN_ID']; ?>">
+                            <option
+                                value="<?= $c['CAMPAIGN_ID']; ?>"
+                                <?= ($c['CAMPAIGN_ID'] == $row['CAMPAIGN_ID']) ? 'selected' : ''; ?>>
 
                                 <?= $c['TITLE']; ?>
 
@@ -231,13 +260,11 @@ oci_execute($campaign_stid);
 
                 </div>
 
-                <!-- Amount -->
-
                 <div class="col-md-6">
 
                     <label class="form-label">
 
-                        Amount (৳)
+                        Amount
 
                     </label>
 
@@ -245,12 +272,10 @@ oci_execute($campaign_stid);
                         type="number"
                         name="amount"
                         class="form-control"
-                        min="1"
+                        value="<?= $row['AMOUNT']; ?>"
                         required>
 
                 </div>
-
-                <!-- Payment Method -->
 
                 <div class="col-md-6">
 
@@ -262,38 +287,31 @@ oci_execute($campaign_stid);
 
                     <select
                         name="payment_method"
-                        class="form-select searchable"
-                        required>
+                        class="form-select">
 
-                        <option value="Bkash">
+                        <?php
 
-                            Bkash
+                        $methods = [
+                            "Bkash",
+                            "Nagad",
+                            "Rocket",
+                            "Bank Transfer",
+                            "Cash"
+                        ];
 
-                        </option>
+                        foreach ($methods as $m) {
 
-                        <option value="Nagad">
+                        ?>
 
-                            Nagad
+                            <option
+                                value="<?= $m; ?>"
+                                <?= ($m == $row['PAYMENT_METHOD']) ? 'selected' : ''; ?>>
 
-                        </option>
+                                <?= $m; ?>
 
-                        <option value="Rocket">
+                            </option>
 
-                            Rocket
-
-                        </option>
-
-                        <option value="Bank Transfer">
-
-                            Bank Transfer
-
-                        </option>
-
-                        <option value="Cash">
-
-                            Cash
-
-                        </option>
+                        <?php } ?>
 
                     </select>
 
@@ -305,18 +323,18 @@ oci_execute($campaign_stid);
 
                 <a
                     href="list.php"
-                    class="btn btn-outline-secondary">
+                    class="btn btn-secondary">
 
-                    ← Back to List
+                    ← Back
 
                 </a>
 
                 <button
                     type="submit"
-                    name="save"
-                    class="btn btn-success">
+                    name="update"
+                    class="btn btn-primary">
 
-                    Add Donation
+                    Update Donation
 
                 </button>
 
@@ -328,4 +346,6 @@ oci_execute($campaign_stid);
 
 </div>
 
-<?php include("../includes/footer.php"); ?>
+<?php
+include("../includes/footer.php");
+?>
