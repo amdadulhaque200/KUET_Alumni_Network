@@ -1,3 +1,4 @@
+
 <?php
 include("../includes/auth.php");
 include("../config/db.php");
@@ -8,31 +9,20 @@ $search = "";
 /*==============================
     SEARCH QUERY
 ==============================*/
+
 $sql = "
 SELECT
-
-a.ALUMNI_ID,
-a.FIRST_NAME,
-a.LAST_NAME,
-a.EMAIL,
-
-d.DEPT_NAME,
-
-b.BATCH_YEAR,
-
-a.CURRENT_JOB,
-a.CURRENT_COMPANY,
-a.CITY,
-
-a.IS_MENTOR
-
-FROM ALUMNI a
-
-JOIN DEPARTMENT d
-ON a.DEPT_ID=d.DEPT_ID
-
-JOIN BATCH b
-ON a.BATCH_ID=b.BATCH_ID
+    J.JOB_ID,
+    J.TITLE,
+    J.COMPANY,
+    J.POST_DATE,
+    J.DEADLINE,
+    A.ALUMNI_ID,
+    A.FIRST_NAME,
+    A.LAST_NAME
+FROM JOB_POSTING J
+JOIN ALUMNI A
+ON J.POSTED_BY = A.ALUMNI_ID
 ";
 
 if (isset($_GET['search']) && trim($_GET['search']) != "") {
@@ -40,21 +30,16 @@ if (isset($_GET['search']) && trim($_GET['search']) != "") {
 
     $sql .= "
     WHERE
-        UPPER(FIRST_NAME) LIKE :search
-        OR UPPER(LAST_NAME) LIKE :search
-        OR TO_CHAR(ALUMNI_ID) LIKE :search2
-        OR UPPER(DEPT_NAME) LIKE :search3
-        OR TO_CHAR(BATCH_YEAR) LIKE :search4
-        OR UPPER(CITY) LIKE :search5
-        OR UPPER(CURRENT_COMPANY) LIKE :search6
+        UPPER(J.TITLE) LIKE :search
+        OR UPPER(J.COMPANY) LIKE :search2
+        OR UPPER(A.FIRST_NAME) LIKE :search3
+        OR UPPER(A.LAST_NAME) LIKE :search4
     ";
 }
 
 $sql .= "
 ORDER BY
-BATCH_YEAR DESC,
-DEPT_NAME,
-FIRST_NAME
+J.POST_DATE DESC
 ";
 
 $stid = oci_parse($conn, $sql);
@@ -66,17 +51,15 @@ if ($search != "") {
     oci_bind_by_name($stid, ":search2", $like);
     oci_bind_by_name($stid, ":search3", $like);
     oci_bind_by_name($stid, ":search4", $like);
-    oci_bind_by_name($stid, ":search5", $like);
-    oci_bind_by_name($stid, ":search6", $like);
 }
 
 oci_execute($stid);
 
 /*==============================
-    TOTAL ALUMNI
+TOTAL JOBS
 ==============================*/
 
-$count_sql = "SELECT COUNT(*) TOTAL FROM ALUMNI";
+$count_sql = "SELECT COUNT(*) TOTAL FROM JOB_POSTING";
 
 $count_stid = oci_parse($conn, $count_sql);
 
@@ -90,13 +73,13 @@ $count = oci_fetch_assoc($count_stid);
 
     <h1 class="display-6 mb-2">
 
-        Alumni Management
+        Job Posting Management
 
     </h1>
 
     <p>
 
-        Manage KUET alumni records.
+        Manage career opportunities shared by KUET alumni.
 
     </p>
 
@@ -108,7 +91,7 @@ $count = oci_fetch_assoc($count_stid);
 
         <div>
 
-            <strong>Total Alumni :</strong>
+            <strong>Total Jobs :</strong>
 
             <?= $count['TOTAL']; ?>
 
@@ -118,7 +101,7 @@ $count = oci_fetch_assoc($count_stid);
 
             <a href="add.php" class="btn btn-success">
 
-                + Add Alumni
+                + Add Job
 
             </a>
 
@@ -136,15 +119,14 @@ $count = oci_fetch_assoc($count_stid);
                     type="text"
                     name="search"
                     class="form-control"
-                    placeholder="Search by Roll, Name, Department, Batch, Company or City"
+                    placeholder="Search by Job Title, Company or Alumni Name"
                     value="<?= htmlspecialchars($search); ?>">
 
             </div>
 
             <div class="col-md-2">
 
-                <button
-                    class="btn btn-primary w-100">
+                <button class="btn btn-primary w-100">
 
                     Search
 
@@ -162,21 +144,17 @@ $count = oci_fetch_assoc($count_stid);
 
                     <tr>
 
-                        <th>Roll</th>
+                        <th>ID</th>
 
-                        <th>Name</th>
-
-                        <th>Department</th>
-
-                        <th>Batch</th>
-
-                        <th>Job</th>
-
-                        <th>Mentor</th>
+                        <th>Job Title</th>
 
                         <th>Company</th>
 
-                        <th>City</th>
+                        <th>Posted By</th>
+
+                        <th>Post Date</th>
+
+                        <th>Deadline</th>
 
                         <th width="180">
 
@@ -196,7 +174,7 @@ $count = oci_fetch_assoc($count_stid);
 
                             <td>
 
-                                <?= $row['ALUMNI_ID']; ?>
+                                <?= $row['JOB_ID']; ?>
 
                             </td>
 
@@ -204,15 +182,27 @@ $count = oci_fetch_assoc($count_stid);
 
                                 <strong>
 
-                                    <?= $row['FIRST_NAME'] . " " . $row['LAST_NAME']; ?>
+                                    <?= $row['TITLE']; ?>
 
                                 </strong>
+
+                            </td>
+
+                            <td>
+
+                                <?= $row['COMPANY']; ?>
+
+                            </td>
+
+                            <td>
+
+                                <?= $row['FIRST_NAME'] . " " . $row['LAST_NAME']; ?>
 
                                 <br>
 
                                 <small>
 
-                                    <?= $row['EMAIL']; ?>
+                                    <?= $row['ALUMNI_ID']; ?>
 
                                 </small>
 
@@ -220,61 +210,20 @@ $count = oci_fetch_assoc($count_stid);
 
                             <td>
 
-                                <?= $row['DEPT_NAME']; ?>
+                                <?= date("d-M-Y", strtotime($row['POST_DATE'])); ?>
 
                             </td>
 
                             <td>
 
-                                <?= $row['BATCH_YEAR']; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= $row['CURRENT_JOB']; ?>
-
-                            </td>
-                            <td>
-
-                                <?php
-
-                                if ($row['IS_MENTOR'] == 'Y') {
-
-                                    echo "<span class='badge bg-success'>YES</span>";
-                                } else {
-
-                                    echo "<span class='badge bg-secondary'>NO</span>";
-                                }
-
-                                ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= $row['CURRENT_COMPANY']; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= $row['CITY']; ?>
+                                <?= date("d-M-Y", strtotime($row['DEADLINE'])); ?>
 
                             </td>
 
                             <td>
 
                                 <a
-                                    href="view.php?id=<?= $row['ALUMNI_ID']; ?>"
-                                    class="btn btn-info btn-sm">
-
-                                    View
-
-                                </a>
-
-                                <a
-                                    href="edit.php?id=<?= $row['ALUMNI_ID']; ?>"
+                                    href="edit.php?id=<?= $row['JOB_ID']; ?>"
                                     class="btn btn-warning btn-sm">
 
                                     Edit
@@ -282,9 +231,9 @@ $count = oci_fetch_assoc($count_stid);
                                 </a>
 
                                 <a
-                                    href="delete.php?id=<?= $row['ALUMNI_ID']; ?>"
+                                    href="delete.php?id=<?= $row['JOB_ID']; ?>"
                                     class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Delete this alumni?')">
+                                    onclick="return confirm('Delete this Job?')">
 
                                     Delete
 
@@ -306,4 +255,8 @@ $count = oci_fetch_assoc($count_stid);
 
 </div>
 
-<?php include("../includes/footer.php"); ?>
+<?php
+
+include("../includes/footer.php");
+
+?>

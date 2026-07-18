@@ -1,46 +1,170 @@
+<?php
+session_start();
+include("config/db.php");
+
+if (isset($_SESSION['admin_id'])) {
+	header("Location: dashboard.php");
+	exit();
+}
+
+$message = "";
+
+if (isset($_POST['login'])) {
+
+	$username = trim($_POST['username']);
+	$password = trim($_POST['password']);
+
+	$sql = "
+    SELECT *
+    FROM ADMIN
+    WHERE USERNAME = :username
+    AND PASSWORD = :password
+    ";
+
+	$stid = oci_parse($conn, $sql);
+
+	oci_bind_by_name($stid, ":username", $username);
+	oci_bind_by_name($stid, ":password", $password);
+
+	oci_execute($stid);
+
+	if ($row = oci_fetch_assoc($stid)) {
+
+		$_SESSION['admin_id'] = $row['ADMIN_ID'];
+		$_SESSION['username'] = $row['USERNAME'];
+		$_SESSION['role'] = $row['ROLE'];
+
+		header("Location: dashboard.php");
+		exit();
+	} else {
+
+		$message = "
+        <div class='alert alert-danger'>
+            Invalid Username or Password.
+        </div>";
+	}
+}
+?>
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
 	<meta charset="UTF-8">
+
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title>Login | KUET Alumni Network</title>
-	<link rel="preconnect" href="https://fonts.googleapis.com">
-	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+	<title>Admin Login | KUET Alumni Network</title>
+
 	<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-	<link rel="stylesheet" href="/kuet_alumni/assets/style.css">
+
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+
+	<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700&display=swap" rel="stylesheet">
+
+	<style>
+		body {
+			background: #f5f7fb;
+			font-family: 'Manrope', sans-serif;
+		}
+
+		.login-card {
+			width: 430px;
+			border: none;
+			border-radius: 15px;
+			box-shadow: 0 10px 35px rgba(0, 0, 0, .12);
+		}
+
+		.logo {
+			width: 90px;
+		}
+	</style>
+
 </head>
-<body class="auth-shell">
-	<div class="auth-card">
-		<div class="auth-visual d-flex flex-column justify-content-between">
-			<div>
-				<p class="text-uppercase fw-semibold mb-2">KUET Alumni Portal</p>
-				<h1 class="display-6 mb-3">Sign in to continue.</h1>
-				<p class="mb-0">A focused entry screen for admin access and future authentication wiring.</p>
+
+<body>
+
+	<div class="container vh-100 d-flex justify-content-center align-items-center">
+
+		<div class="card login-card">
+
+			<div class="card-body p-5">
+
+				<div class="text-center mb-4">
+
+					<img src="assets/kuet_logo.png" class="logo mb-3">
+
+					<h3 class="fw-bold">
+
+						KUET Alumni Network
+
+					</h3>
+
+					<p class="text-muted">
+
+						Administrator Login
+
+					</p>
+
+				</div>
+
+				<?= $message ?>
+
+				<form method="post">
+
+					<div class="mb-3">
+
+						<label class="form-label">
+
+							Username
+
+						</label>
+
+						<input
+							type="text"
+							name="username"
+							class="form-control"
+							autocomplete="off"
+							spellcheck="false"
+							autocapitalize="off"
+							required>
+					</div>
+
+					<div class="mb-4">
+
+						<label class="form-label">
+
+							Password
+
+						</label>
+
+						<input
+							type="password"
+							name="password"
+							class="form-control"
+							autocomplete="new-password"
+							required>
+
+					</div>
+
+					<button
+						type="submit"
+						name="login"
+						class="btn btn-primary w-100">
+
+						Login
+
+					</button>
+
+				</form>
+
 			</div>
-			<div class="mt-5 small text-white-50">
-				Secure access for alumni operations, event coordination, and donation reporting.
-			</div>
+
 		</div>
-		<div class="auth-form">
-			<h2 class="fw-bold mb-2">Welcome back</h2>
-			<p class="text-muted mb-4">Use your admin credentials to access the portal.</p>
-			<form method="post" action="#" onsubmit="return false;">
-				<div class="mb-3">
-					<label class="form-label">Username or Email</label>
-					<input type="email" class="form-control" placeholder="admin@kuet.ac.bd">
-				</div>
-				<div class="mb-3">
-					<label class="form-label">Password</label>
-					<input type="password" class="form-control" placeholder="Enter password">
-				</div>
-				<div class="d-grid gap-2">
-					<button type="button" class="btn btn-primary">Enter Portal</button>
-					<a href="/kuet_alumni/dashboard.php" class="btn btn-outline-secondary">Go to Dashboard</a>
-				</div>
-			</form>
-			<p class="table-note mt-3 mb-0">Authentication can be connected to the Admin table when you are ready.</p>
-		</div>
+
 	</div>
+
 </body>
+
 </html>

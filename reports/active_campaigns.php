@@ -1,4 +1,5 @@
 <?php
+include("../includes/auth.php");
 include("../includes/header.php");
 include("../config/db.php");
 

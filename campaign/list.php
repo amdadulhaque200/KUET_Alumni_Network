@@ -5,34 +5,9 @@ include("../includes/header.php");
 
 $search = "";
 
-/*==============================
-    SEARCH QUERY
-==============================*/
 $sql = "
-SELECT
-
-a.ALUMNI_ID,
-a.FIRST_NAME,
-a.LAST_NAME,
-a.EMAIL,
-
-d.DEPT_NAME,
-
-b.BATCH_YEAR,
-
-a.CURRENT_JOB,
-a.CURRENT_COMPANY,
-a.CITY,
-
-a.IS_MENTOR
-
-FROM ALUMNI a
-
-JOIN DEPARTMENT d
-ON a.DEPT_ID=d.DEPT_ID
-
-JOIN BATCH b
-ON a.BATCH_ID=b.BATCH_ID
+SELECT *
+FROM DONATION_CAMPAIGN
 ";
 
 if (isset($_GET['search']) && trim($_GET['search']) != "") {
@@ -40,21 +15,14 @@ if (isset($_GET['search']) && trim($_GET['search']) != "") {
 
     $sql .= "
     WHERE
-        UPPER(FIRST_NAME) LIKE :search
-        OR UPPER(LAST_NAME) LIKE :search
-        OR TO_CHAR(ALUMNI_ID) LIKE :search2
-        OR UPPER(DEPT_NAME) LIKE :search3
-        OR TO_CHAR(BATCH_YEAR) LIKE :search4
-        OR UPPER(CITY) LIKE :search5
-        OR UPPER(CURRENT_COMPANY) LIKE :search6
+        UPPER(TITLE) LIKE :search
+        OR UPPER(STATUS) LIKE :search2
+        OR TO_CHAR(CAMPAIGN_ID) LIKE :search3
     ";
 }
 
 $sql .= "
-ORDER BY
-BATCH_YEAR DESC,
-DEPT_NAME,
-FIRST_NAME
+ORDER BY CAMPAIGN_ID DESC
 ";
 
 $stid = oci_parse($conn, $sql);
@@ -65,18 +33,11 @@ if ($search != "") {
     oci_bind_by_name($stid, ":search", $like);
     oci_bind_by_name($stid, ":search2", $like);
     oci_bind_by_name($stid, ":search3", $like);
-    oci_bind_by_name($stid, ":search4", $like);
-    oci_bind_by_name($stid, ":search5", $like);
-    oci_bind_by_name($stid, ":search6", $like);
 }
 
 oci_execute($stid);
 
-/*==============================
-    TOTAL ALUMNI
-==============================*/
-
-$count_sql = "SELECT COUNT(*) TOTAL FROM ALUMNI";
+$count_sql = "SELECT COUNT(*) TOTAL FROM DONATION_CAMPAIGN";
 
 $count_stid = oci_parse($conn, $count_sql);
 
@@ -90,13 +51,13 @@ $count = oci_fetch_assoc($count_stid);
 
     <h1 class="display-6 mb-2">
 
-        Alumni Management
+        Donation Campaigns
 
     </h1>
 
     <p>
 
-        Manage KUET alumni records.
+        Manage all donation campaigns.
 
     </p>
 
@@ -104,11 +65,11 @@ $count = oci_fetch_assoc($count_stid);
 
 <div class="section-card">
 
-    <div class="section-card-header d-flex justify-content-between align-items-center flex-wrap">
+    <div class="section-card-header d-flex justify-content-between align-items-center">
 
         <div>
 
-            <strong>Total Alumni :</strong>
+            <strong>Total Campaigns :</strong>
 
             <?= $count['TOTAL']; ?>
 
@@ -116,9 +77,11 @@ $count = oci_fetch_assoc($count_stid);
 
         <div>
 
-            <a href="add.php" class="btn btn-success">
+            <a
+                href="add.php"
+                class="btn btn-success">
 
-                + Add Alumni
+                + Add Campaign
 
             </a>
 
@@ -136,7 +99,7 @@ $count = oci_fetch_assoc($count_stid);
                     type="text"
                     name="search"
                     class="form-control"
-                    placeholder="Search by Roll, Name, Department, Batch, Company or City"
+                    placeholder="Search by Campaign ID, Title or Status"
                     value="<?= htmlspecialchars($search); ?>">
 
             </div>
@@ -162,23 +125,19 @@ $count = oci_fetch_assoc($count_stid);
 
                     <tr>
 
-                        <th>Roll</th>
+                        <th>ID</th>
 
-                        <th>Name</th>
+                        <th>Title</th>
 
-                        <th>Department</th>
+                        <th>Target</th>
 
-                        <th>Batch</th>
+                        <th>Start</th>
 
-                        <th>Job</th>
+                        <th>End</th>
 
-                        <th>Mentor</th>
+                        <th>Status</th>
 
-                        <th>Company</th>
-
-                        <th>City</th>
-
-                        <th width="180">
+                        <th width="170">
 
                             Action
 
@@ -196,7 +155,7 @@ $count = oci_fetch_assoc($count_stid);
 
                             <td>
 
-                                <?= $row['ALUMNI_ID']; ?>
+                                <?= $row['CAMPAIGN_ID']; ?>
 
                             </td>
 
@@ -204,7 +163,7 @@ $count = oci_fetch_assoc($count_stid);
 
                                 <strong>
 
-                                    <?= $row['FIRST_NAME'] . " " . $row['LAST_NAME']; ?>
+                                    <?= $row['TITLE']; ?>
 
                                 </strong>
 
@@ -212,7 +171,7 @@ $count = oci_fetch_assoc($count_stid);
 
                                 <small>
 
-                                    <?= $row['EMAIL']; ?>
+                                    <?= $row['DESCRIPTION']; ?>
 
                                 </small>
 
@@ -220,31 +179,34 @@ $count = oci_fetch_assoc($count_stid);
 
                             <td>
 
-                                <?= $row['DEPT_NAME']; ?>
+                                ৳ <?= number_format($row['TARGET_AMOUNT']); ?>
 
                             </td>
 
                             <td>
 
-                                <?= $row['BATCH_YEAR']; ?>
+                                <?= date("d-M-Y", strtotime($row['START_DATE'])); ?>
 
                             </td>
 
                             <td>
 
-                                <?= $row['CURRENT_JOB']; ?>
+                                <?= date("d-M-Y", strtotime($row['END_DATE'])); ?>
 
                             </td>
+
                             <td>
 
                                 <?php
 
-                                if ($row['IS_MENTOR'] == 'Y') {
+                                $status = $row['STATUS'];
 
-                                    echo "<span class='badge bg-success'>YES</span>";
+                                if ($status == "ACTIVE") {
+                                    echo "<span class='badge bg-success'>ACTIVE</span>";
+                                } elseif ($status == "COMPLETED") {
+                                    echo "<span class='badge bg-primary'>COMPLETED</span>";
                                 } else {
-
-                                    echo "<span class='badge bg-secondary'>NO</span>";
+                                    echo "<span class='badge bg-danger'>CANCELLED</span>";
                                 }
 
                                 ?>
@@ -253,28 +215,8 @@ $count = oci_fetch_assoc($count_stid);
 
                             <td>
 
-                                <?= $row['CURRENT_COMPANY']; ?>
-
-                            </td>
-
-                            <td>
-
-                                <?= $row['CITY']; ?>
-
-                            </td>
-
-                            <td>
-
                                 <a
-                                    href="view.php?id=<?= $row['ALUMNI_ID']; ?>"
-                                    class="btn btn-info btn-sm">
-
-                                    View
-
-                                </a>
-
-                                <a
-                                    href="edit.php?id=<?= $row['ALUMNI_ID']; ?>"
+                                    href="edit.php?id=<?= $row['CAMPAIGN_ID']; ?>"
                                     class="btn btn-warning btn-sm">
 
                                     Edit
@@ -282,9 +224,9 @@ $count = oci_fetch_assoc($count_stid);
                                 </a>
 
                                 <a
-                                    href="delete.php?id=<?= $row['ALUMNI_ID']; ?>"
+                                    href="delete.php?id=<?= $row['CAMPAIGN_ID']; ?>"
                                     class="btn btn-danger btn-sm"
-                                    onclick="return confirm('Delete this alumni?')">
+                                    onclick="return confirm('Delete this Campaign?')">
 
                                     Delete
 
